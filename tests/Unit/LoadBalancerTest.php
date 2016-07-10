@@ -16,15 +16,15 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test LoadBalancer::handleRequest()
      */
-    public function testHandleRequestNoHostException()
+    public function testHandleRequestNoRegisteredHostException()
     {
         $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
-        $resquest = $this->prophesize('Symfony\Component\HttpFoundation\Request');
+        $request = $this->prophesize('Symfony\Component\HttpFoundation\Request');
 
         $loadBalancer = new LoadBalancer([], $chooser->reveal());
 
         $this->expectException(NoRegisteredHostException::class);
-        $loadBalancer->handleRequest($resquest->reveal());
+        $loadBalancer->handleRequest($request->reveal());
     }
 
     /**
@@ -34,12 +34,12 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
     {
         $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
         $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface');
-        $resquest = $this->prophesize('Symfony\Component\HttpFoundation\Request');
+        $request = $this->prophesize('Symfony\Component\HttpFoundation\Request');
 
         $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
 
         $this->expectException(NoAvailableHostException::class);
-        $loadBalancer->handleRequest($resquest->reveal());
+        $loadBalancer->handleRequest($request->reveal());
     }
 
     /**
@@ -48,13 +48,13 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
     public function testHandleRequestHostRequestException()
     {
         $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface')->reveal();
-        $resquest = $this->prophesize('Symfony\Component\HttpFoundation\Request');
+        $request = $this->prophesize('Symfony\Component\HttpFoundation\Request');
         $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
-        $chooser->getAvailableHost($resquest, [$host])->willReturn($host);
+        $chooser->getAvailableHost($request, [$host])->willReturn($host);
 
         $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
 
         $this->expectException(HostRequestException::class);
-        $loadBalancer->handleRequest($resquest->reveal());
+        $loadBalancer->handleRequest($request->reveal());
     }
 }
