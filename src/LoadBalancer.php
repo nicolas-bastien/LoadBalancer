@@ -49,5 +49,9 @@ class LoadBalancer implements LoadBalancerInterface
             throw new NoRegisteredHostException();
         }
 
+        $host = $this->chooser->getAvailableHost($request, $this->hosts);
+        if ($host == null) {
+            throw new NoAvailableHostException();
+        }
     }
 }
