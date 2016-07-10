@@ -15,3 +15,8 @@ cs: checkstyle
 checkstyle:
 	vendor/bin/phpcs --extensions=php -n --standard=PSR2 --report=full src
 
+## Test
+test: phpunit
+
+phpunit:
+	vendor/bin/phpunit
