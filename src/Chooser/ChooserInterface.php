@@ -2,6 +2,7 @@
 
 namespace NBN\LoadBalancer\Chooser;
 
+use NBN\LoadBalancer\Host\HostInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -12,7 +13,7 @@ interface ChooserInterface
     /**
      * @param  Request  $request
      * @param  array    $hosts
-     * @return Response
+     * @return HostInterface
      */
     public function getAvailableHost(Request $request, array $hosts);
 }

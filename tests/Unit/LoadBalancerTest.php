@@ -2,6 +2,7 @@
 
 namespace NBN\LoadBalancer;
 
+use NBN\LoadBalancer\Exception\HostRequestException;
 use NBN\LoadBalancer\Exception\NoAvailableHostException;
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
 
@@ -38,6 +39,22 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
         $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
 
         $this->expectException(NoAvailableHostException::class);
+        $loadBalancer->handleRequest($resquest->reveal());
+    }
+
+    /**
+     * @test LoadBalancer::handleRequest()
+     */
+    public function testHandleRequestHostRequestException()
+    {
+        $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface')->reveal();
+        $resquest = $this->prophesize('Symfony\Component\HttpFoundation\Request');
+        $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
+        $chooser->getAvailableHost($resquest, [$host])->willReturn($host);
+
+        $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
+
+        $this->expectException(HostRequestException::class);
         $loadBalancer->handleRequest($resquest->reveal());
     }
 }

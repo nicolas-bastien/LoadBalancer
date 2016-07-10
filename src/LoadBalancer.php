@@ -3,8 +3,8 @@
 namespace NBN\LoadBalancer;
 
 use NBN\LoadBalancer\Chooser\ChooserInterface;
+use NBN\LoadBalancer\Exception\HostRequestException;
 use NBN\LoadBalancer\Exception\NoAvailableHostException;
-use NBN\LoadBalancer\Exception\NoRegisterdHostException;
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
 use NBN\LoadBalancer\Host\HostInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,5 +53,14 @@ class LoadBalancer implements LoadBalancerInterface
         if ($host == null) {
             throw new NoAvailableHostException();
         }
+
+        $response = $host->handleRequest($request);
+        if (!$response instanceof Response) {
+            throw new HostRequestException();
+        }
+
+
+
+
     }
 }
