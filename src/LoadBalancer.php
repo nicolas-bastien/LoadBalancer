@@ -59,8 +59,8 @@ class LoadBalancer implements LoadBalancerInterface
             throw new HostRequestException();
         }
 
+        $response->headers->set('Handled-By', $host->getId());
 
-
-
+        return $response;
     }
 }

@@ -11,6 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 interface HostInterface
 {
     /**
+     * @return string
+     */
+    public function getId();
+
+    /**
      * @return float
      */
     public function getLoad();
