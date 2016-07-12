@@ -3,9 +3,11 @@
 namespace NBN\LoadBalancer;
 
 use NBN\LoadBalancer\Chooser\ChooserInterface;
+use NBN\LoadBalancer\Exception\AlreadyRegisteredHostException;
 use NBN\LoadBalancer\Exception\HostRequestException;
 use NBN\LoadBalancer\Exception\NoAvailableHostException;
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
+use NBN\LoadBalancer\Host\Host;
 use NBN\LoadBalancer\Host\HostInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,13 +33,37 @@ class LoadBalancer implements LoadBalancerInterface
      */
     public function __construct(array $hosts, ChooserInterface $chooser)
     {
-        $this->hosts   = $hosts;
+        foreach ($hosts as $host) {
+            $this->hosts[$host->getId()] = $host;
+        }
+
         $this->chooser = $chooser;
     }
 
+    /**
+     * @param HostInterface $host
+     */
     public function addHost(HostInterface $host)
     {
-        $this->hosts[] = $host;
+        if (isset($this->hosts[$host->getId()])) {
+            throw new AlreadyRegisteredHostException();
+        }
+
+        $this->hosts[$host->getId()] = $host;
+    }
+
+    /**
+     * @param string $id
+     * @param string $url
+     * @param array  $settings
+     */
+    public function addHostByConfiguration($id, $url, $settings)
+    {
+        if (isset($this->hosts[$id])) {
+            throw new AlreadyRegisteredHostException();
+        }
+
+        $this->hosts[$id] = new Host($id, $url, $settings);
     }
 
     /**

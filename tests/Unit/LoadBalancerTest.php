@@ -2,6 +2,7 @@
 
 namespace NBN\LoadBalancer;
 
+use NBN\LoadBalancer\Exception\AlreadyRegisteredHostException;
 use NBN\LoadBalancer\Exception\HostRequestException;
 use NBN\LoadBalancer\Exception\NoAvailableHostException;
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
@@ -34,9 +35,10 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
     {
         $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
         $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface');
+        $host->getId()->willReturn('host-id');
         $request = $this->prophesize('Symfony\Component\HttpFoundation\Request');
 
-        $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
+        $loadBalancer = new LoadBalancer([$host->reveal()], $chooser->reveal());
 
         $this->expectException(NoAvailableHostException::class);
         $loadBalancer->handleRequest($request->reveal());
@@ -47,14 +49,32 @@ class LoadBalancerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandleRequestHostRequestException()
     {
-        $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface')->reveal();
-        $request = $this->prophesize('Symfony\Component\HttpFoundation\Request');
+        $request  = $this->prophesize('Symfony\Component\HttpFoundation\Request')->reveal();
+        $host     = $this->prophesize('NBN\LoadBalancer\Host\HostInterface');
+        $host->getId()->willReturn('host-id');
+        $host->handleRequest($request)->willReturn(null);
+        $host     = $host->reveal();
         $chooser  = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
-        $chooser->getAvailableHost($request, [$host])->willReturn($host);
+        $chooser->getAvailableHost($request, ['host-id' => $host])->willReturn($host);
 
         $loadBalancer = new LoadBalancer([$host], $chooser->reveal());
 
         $this->expectException(HostRequestException::class);
-        $loadBalancer->handleRequest($request->reveal());
+        $loadBalancer->handleRequest($request);
+    }
+
+    /**
+     * @test LoadBalancer::addHostByConfiguration()
+     */
+    public function testaddHostByConfigurationAlreadyRegisteredHostException()
+    {
+        $host = $this->prophesize('NBN\LoadBalancer\Host\HostInterface');
+        $host->getId()->willReturn('host-id');
+        $chooser = $this->prophesize('NBN\LoadBalancer\Chooser\ChooserInterface');
+
+        $loadBalancer = new LoadBalancer([$host->reveal()], $chooser->reveal());
+
+        $this->expectException(AlreadyRegisteredHostException::class);
+        $loadBalancer->addHostByConfiguration('host-id', 'url', []);
     }
 }
