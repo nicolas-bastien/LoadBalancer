@@ -76,7 +76,7 @@ class LoadBalancer implements LoadBalancerInterface
         }
 
         $host = $this->chooser->getAvailableHost($request, $this->hosts);
-        if ($host == null) {
+        if ($host === null) {
             throw new NoAvailableHostException();
         }
 

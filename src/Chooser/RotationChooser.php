@@ -3,7 +3,6 @@
 namespace NBN\LoadBalancer\Chooser;
 
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
-use NBN\LoadBalancer\Host\HostInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

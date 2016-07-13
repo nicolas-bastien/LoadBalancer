@@ -3,7 +3,6 @@
 namespace NBN\LoadBalancer\Chooser;
 
 use NBN\LoadBalancer\Exception\NoRegisteredHostException;
-use NBN\LoadBalancer\Host\HostInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -45,7 +44,7 @@ class LoadLimitChooser implements ChooserInterface
             if ($load < $this->loadLimit) {
                 return $host;
             }
-            if ($currentHost == null || $load < $currentLoad) {
+            if ($currentHost === null || $load < $currentLoad) {
                 $currentLoad = $load;
                 $currentHost = $host;
             }
